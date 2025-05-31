@@ -1,16 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UsersModule } from '../users/users.module';
-import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
-import { jwtConstants } from './constants';
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule), // Resuelve dependencia circular con UsersModule
     JwtModule.register({
-      secret: jwtConstants.secret,
+      secret: process.env.JWT_SECRET || 'TU_SECRETO_SEGURO',  // Mejor usar variable de entorno
       signOptions: { expiresIn: '1h' },
     }),
   ],
@@ -18,4 +17,4 @@ import { JwtStrategy } from './jwt.strategy';
   controllers: [AuthController],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule { }

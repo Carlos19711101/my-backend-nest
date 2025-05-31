@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     // Conexión a MongoDB (cambia la URI por la de tu base de datos)
-    MongooseModule.forRoot('mongodb://localhost/nest-auth-db'),
+    MongooseModule.forRoot('mongodb://localhost:27017/nest-auth-db'),
 
     // Módulos de tu aplicación
     UsersModule,
@@ -17,4 +17,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

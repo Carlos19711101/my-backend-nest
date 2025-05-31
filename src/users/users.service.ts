@@ -1,13 +1,25 @@
-import { Injectable, ConflictException, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  NotFoundException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService, // Solo si necesitas usar AuthService aquí
+  ) { }
 
   async register(createUserDto: CreateUserDto): Promise<Omit<User, 'password'>> {
     const { email, password, name } = createUserDto;
@@ -53,8 +65,7 @@ export class UsersService {
     return user;
   }
 
-  // Aquí agregas el nuevo método
-  async findByEmail(email: string) {
+  async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email }).exec();
   }
 }

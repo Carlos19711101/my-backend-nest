@@ -1,12 +1,12 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
+import { LoginDto } from '../auth/dto/login.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   // Registro público
   @Post('register')
@@ -17,14 +17,20 @@ export class UsersController {
   // Login público
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    return this.usersService.validateUser(loginDto.email, loginDto.password);
+    const user = await this.usersService.validateUser(loginDto.email, loginDto.password);
+    if (!user) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+    // Aquí idealmente deberías delegar la generación del JWT a AuthService
+    // Pero si quieres devolver solo el usuario sin password, puedes hacerlo así:
+    return user;
   }
 
   // Perfil protegido, requiere JWT válido
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@Request() req) {
-    const userId = req.user.userId;
+    const userId = req.user.userId; // Asegúrate que el payload JWT tenga userId
     return this.usersService.findById(userId);
   }
 }

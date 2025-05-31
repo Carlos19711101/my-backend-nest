@@ -5,7 +5,7 @@ import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
@@ -15,7 +15,7 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    // Puedes delegar al UsersService o implementar aquí
-    return this.authService.usersService.register(registerDto);
+    return this.authService.register(registerDto); // Usar el nuevo método
   }
+
 }
