@@ -15,6 +15,9 @@ import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UsersService {
+  findAll() {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(forwardRef(() => AuthService))
@@ -68,4 +71,20 @@ export class UsersService {
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ email }).exec();
   }
+
+  async update(id: string, updateUserDto: Partial<CreateUserDto>): Promise<Omit<User, 'password'>> {
+  const updatedUser = await this.userModel.findByIdAndUpdate(id, updateUserDto, { new: true }).select('-password').exec();
+  if (!updatedUser) {
+    throw new NotFoundException('Usuario no encontrado');
+  }
+  return updatedUser;
+  }
+
+  async remove(id: string): Promise<void> {
+  const result = await this.userModel.findByIdAndDelete(id).exec();
+  if (!result) {
+    throw new NotFoundException('Usuario no encontrado');
+  }
+  }
+
 }
